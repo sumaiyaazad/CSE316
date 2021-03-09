@@ -5,10 +5,8 @@
 .DATA
     CR EQU 0DH
     LF EQU 0AH
-    X DB ?
-    Y DB ?
-    Z DB ?
     LARGEST2 DB ?
+    LARGEST DB ?
     
     MSG DB CR,LF,'RESULT: $'
     MSG0 DB CR,LF,'All the numbers are equal $'
@@ -30,7 +28,7 @@ MAIN PROC
     MOV AH, 1
     INT 21H                      
     SUB AL,48 
-    MOV X,AL     
+    MOV BL,AL     
 ;print user prompt for Y
     LEA DX, MSG2
     MOV AH, 9
@@ -39,11 +37,20 @@ MAIN PROC
     MOV AH, 1
     INT 21H
     SUB AL,48
-    MOV Y,AL
-    CMP X,Y
-    JLE LARGEST2Y
-    JG LARGEST2X  
-;print user prompt for Z
+    MOV CL,AL
+    CMP BL,CL
+    JG LARGEST2Y
+    JLE LARGEST2X 
+SHOWRESULT2:
+    ADD BL,48
+    LEA DX, MSG
+    MOV AH, 9
+    INT 21H    
+    MOV AH, 2
+    MOV DL, LARGEST2
+    INT 21H
+;print user prompt for Z 
+Z:
     LEA DX, MSG3
     MOV AH, 9
     INT 21H
@@ -51,29 +58,40 @@ MAIN PROC
     MOV AH, 1
     INT 21H
     SUB AL,48
-    MOV Z,AL
-    CMP LARGEST2,Z
+    CMP LARGEST2,AL
     JL LARGEST2Z
-    JE EQUALCASE
-    JMP SHOWRESULT 
+    JE EQUALITY
+    JMP SHOWRESULT
+EQUALITY:
+    MOV DL,LARGEST
+    CMP LARGEST2,DL
+    JE EQUALCASE 
 LARGEST2Z:
-    MOV LARGEST2,Z
+    MOV LARGEST2,AL
     JMP SHOWRESULT
 LARGEST2Y:
-    MOV LARGEST2,Y
+    MOV LARGEST2,CL
+    MOV LARGEST,BL
+    JMP Z 
 LARGEST2X:
-    MOV LARGEST2,X
+    MOV LARGEST2,BL
+    MOV LARGEST,CL
+    JMP Z
 SHOWRESULT:
-    ADD LARGEST2,48
+    ADD BL,48
     LEA DX, MSG
     MOV AH, 9
     INT 21H    
     MOV AH, 2
-    MOV DL, LARGEST2
+    MOV DL, BL
     INT 21H
+    JMP EXIT
 EQUALCASE:
-        
+    LEA DX, MSG0
+    MOV AH, 9
+    INT 21H   
 ;DOX exit
+EXIT:
     MOV AH, 4CH
     INT 21H
   
