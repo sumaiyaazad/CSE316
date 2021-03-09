@@ -5,14 +5,13 @@
 .DATA
     CR EQU 0DH
     LF EQU 0AH
-    LARGEST2 DB ?
-    LARGEST DB ?
+    CHECKDIG DB  0
+    CHECKUP DB 0
+    CHECKLOW DB 0
     
-    MSG DB CR,LF,'RESULT: $'
-    MSG0 DB CR,LF,'All the numbers are equal $'
-    MSG1 DB CR,LF,'ENTER X: $' 
-    MSG2 DB CR,LF,'ENTER Y: $'
-    MSG3 DB CR,LF,'ENTER Z: $'
+    MSG DB CR,LF,'Enter password: $'
+    MSG1 DB CR,LF,'Valid password $'
+    MSG2 DB CR,LF,'Invalid password $'
 
 .CODE
 
@@ -20,66 +19,53 @@ MAIN PROC
 ;initialize DS
     MOV AX, @DATA
     MOV DS, AX
-;print user prompt for X
+;print user prompt for PASSWORD
+    LEA DX, MSG
+    MOV AH, 9
+    INT 21H
+;input X
+USERINPUT:    
+    MOV AH, 1
+    INT 21H
+    CMP AL,21H
+    JNGE VALIDITY
+    CMP AL,7EH
+    JNLE VALIDITY
+    CMP AL,30H
+    JNGE USERINPUT
+    CMP AL,39H
+    JLE DIG1                      
+    CMP AL,41H
+    JNGE USERINPUT
+    CMP AL,5AH
+    JLE UP1
+    CMP AL,61H
+    JNGE USERINPUT
+    CMP AL,7AH
+    JLE LOW1
+    JMP USERINPUT
+DIG1:
+    MOV CHECKDIG,1
+    JMP USERINPUT   
+UP1:
+    MOV CHECKUP,1
+    JMP USERINPUT
+LOW1:
+    MOV CHECKLOW,1
+    JMP USERINPUT
+VALIDITY:
+    CMP CHECKDIG,1
+    JNE INVALID
+    CMP CHECKUP,1
+    JNE INVALID
+    CMP CHECKLOW,1
+    JNE INVALID
     LEA DX, MSG1
     MOV AH, 9
     INT 21H
-;input X    
-    MOV AH, 1
-    INT 21H                      
-    SUB AL,48 
-    MOV BL,AL     
-;print user prompt for Y
-    LEA DX, MSG2
-    MOV AH, 9
-    INT 21H
-;input Y     
-    MOV AH, 1
-    INT 21H
-    SUB AL,48
-    MOV CL,AL
-    CMP BL,CL
-    JG LARGEST2Y
-    JLE LARGEST2X 
-;print user prompt for Z 
-Z:
-    LEA DX, MSG3
-    MOV AH, 9
-    INT 21H
-;input Z     
-    MOV AH, 1
-    INT 21H
-    SUB AL,48
-    CMP LARGEST2,AL
-    JL LARGEST2Z
-    JE EQUALITY
-    JMP SHOWRESULT
-EQUALITY:
-    MOV DL,LARGEST
-    CMP LARGEST2,DL
-    JE EQUALCASE 
-LARGEST2Z:
-    MOV LARGEST2,AL
-    JMP SHOWRESULT
-LARGEST2Y:
-    MOV LARGEST2,CL
-    MOV LARGEST,BL
-    JMP Z 
-LARGEST2X:
-    MOV LARGEST2,BL
-    MOV LARGEST,CL
-    JMP Z
-SHOWRESULT:
-    ADD LARGEST2,48
-    LEA DX, MSG
-    MOV AH, 9
-    INT 21H    
-    MOV AH, 2
-    MOV DL, LARGEST2
-    INT 21H
     JMP EXIT
-EQUALCASE:
-    LEA DX, MSG0
+INVALID:
+    LEA DX, MSG2
     MOV AH, 9
     INT 21H   
 ;DOX exit
