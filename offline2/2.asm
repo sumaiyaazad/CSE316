@@ -23,7 +23,7 @@ MAIN PROC
     LEA DX, MSG
     MOV AH, 9
     INT 21H
-;input X
+;input password
 USERINPUT:    
     MOV AH, 1
     INT 21H
