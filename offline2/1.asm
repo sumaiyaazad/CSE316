@@ -24,7 +24,7 @@ MAIN PROC
     LEA DX, MSG1
     MOV AH, 9
     INT 21H
-;input X    
+;input X as BL    
     MOV AH, 1
     INT 21H                      
     SUB AL,48 
@@ -33,7 +33,7 @@ MAIN PROC
     LEA DX, MSG2
     MOV AH, 9
     INT 21H
-;input Y     
+;input Y AS CL    
     MOV AH, 1
     INT 21H
     SUB AL,48
@@ -59,6 +59,12 @@ EQUALITY:
     CMP LARGEST2,DL
     JE EQUALCASE 
 LARGEST2Z:
+    MOV LARGEST2,AL
+    CMP LARGEST,AL
+    JL MOVE
+    JMP SHOWRESULT
+MOVE:
+    MOV AL,LARGEST
     MOV LARGEST2,AL
     JMP SHOWRESULT
 LARGEST2Y:
