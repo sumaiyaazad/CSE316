@@ -260,7 +260,7 @@ OPERATORCHECK:
     CMP OPERATOR,43
     JE ADDITION1
     CMP OPERATOR,45
-    JE SUBTRACTION 
+    JE SUBTRACTION1 
 DIVISION:
     MOV AL,SIGN2
     MOV RESULTSIGN,AL
@@ -272,8 +272,69 @@ DIVISION:
     DIV OPERAND2
     MOV RESULT,AX
     JMP PRINTSIGN
-SUBTRACTION: 
-    JMP EXIT
+SUBTRACTION1:
+    CMP SIGN1,1
+    JNE SUBTRACTION2
+    CMP SIGN2,0 
+    JNE SUBTRACTION3 
+    ;sign of 1st operand is 1 and sign of 2nd operand is 0, so resultsign 1
+    MOV RESULTSIGN,1
+    MOV BX,OPERAND1
+    MOV RESULT,BX
+    MOV BX,OPERAND2
+    ADD RESULT,BX   
+    JMP PRINTSIGN
+;sign of the 1st operand is 0
+SUBTRACTION2:
+    CMP SIGN2,1
+    JE SUBTRACTION4 
+    ;sign of both operands 0
+    MOV BX,OPERAND2
+    CMP OPERAND1,BX
+    JL RESULTSIGN3
+    ;result sign 0 cause 1st operand is greater or equal and both sign 0
+    MOV RESULTSIGN,0
+    MOV BX,OPERAND1
+    MOV RESULT,BX
+    MOV BX,OPERAND2
+    SUB RESULT,BX
+    JMP PRINTSIGN
+;both operand sign 0 but operand2>operand1 so result sign 1
+RESULTSIGN3:
+    MOV RESULTSIGN,1
+    MOV BX,OPERAND2
+    MOV RESULT,BX
+    MOV BX,OPERAND1
+    SUB RESULT,BX
+    JMP PRINTSIGN
+;both operand sign 1
+SUBTRACTION3:
+   MOV BX,OPERAND1
+   CMP OPERAND2,BX
+   JL  RESULTSIGN4
+   ;both sign 1 but operand2>=operand1 so result sign 0
+   MOV RESULTSIGN,0
+   MOV BX,OPERAND2
+   MOV RESULT,BX
+   MOV BX,OPERAND1
+   SUB RESULT,BX
+   JMP PRINTSIGN
+;both operand sign 1 and operand2<operand1 , so result sign 1
+RESULTSIGN4:
+   MOV RESULTSIGN,1
+   MOV BX,OPERAND1
+   MOV RESULT,BX
+   MOV BX,OPERAND2
+   SUB RESULT,BX
+   JMP PRINTSIGN  
+;sign of the 1st operand is 0 and sign of the 2nd operand is 1 so result sign 0
+SUBTRACTION4:
+    MOV RESULTSIGN,0
+    MOV BX,OPERAND1
+    MOV RESULT,BX
+    MOV BX,OPERAND2
+    ADD RESULT,BX
+    JMP PRINTSIGN
 ADDITION1:
     CMP SIGN1,1
     JNE ADDITION2
