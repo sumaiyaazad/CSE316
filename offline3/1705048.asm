@@ -13,9 +13,14 @@
     SIGN DW 0
     
     MSGERROR DB CR,LF,' Wrong operator $'
-    MSG1 DB CR,LF,' Enter 1st number: $'
-    MSG2 DB CR,LF,' Enter 2nd number: $'
+    MSG1 DB CR,LF,' Enter operand1: $'
+    MSG2 DB CR,LF,' Enter operand2: $'
+    MSG3 DB CR,LF,' Enter operator: $'
+    
+    MSGBR1 DB '[$'
+    MSGBR2 DB ']$' 
     MSG DB CR,LF,' $'
+    MINUS DB '-$'
 
 .CODE
 
@@ -60,10 +65,10 @@ NUMBERIN1:
     ADD BL,CL
     JMP NUMBERIN1
 INPUTOPERATOR:
-    LEA DX, MSG
+    MOV OPERAND1,BX
+    LEA DX, MSG3
     MOV AH, 9
     INT 21H
-    MOV OPERAND1,BX
     MOV AH,1
     INT 21H
     CMP AL,71
@@ -103,7 +108,7 @@ NUMBERIN2:
     MOV AH, 1
     INT 21H
     CMP AL,0DH
-    JE OUTPUTNUMBER1
+    JE PRINT1
     CMP AL,30H
     JL NUMBERIN2
     CMP AL,39H
@@ -117,12 +122,21 @@ NUMBERIN2:
     MOV BX,AX
     ;add input digit 
     ADD BL,CL
-    JMP NUMBERIN2 
-OUTPUTNUMBER1:
-    MOV OPERAND2,BX
+    JMP NUMBERIN2
+PRINT1:
+    MOV OPERAND2,BX 
     LEA DX, MSG
     MOV AH, 9
     INT 21H
+    LEA DX, MSGBR1
+    MOV AH, 9
+    INT 21H
+    CMP SIGN1,1
+    JNE OUTPUTNUMBER1 
+    LEA DX, MINUS
+    MOV AH, 9
+    INT 21H     
+OUTPUTNUMBER1: 
     MOV AX,OPERAND1
     MOV CX,10000
     XOR DX,DX
@@ -164,13 +178,31 @@ OUTPUTNUMBER1:
     ADD CX,48
     MOV DL,CL
     MOV AH, 2
-    INT 21H
+    INT 21H 
+    LEA DX, MSGBR2
+    MOV AH, 9
+    INT 21H 
+OPERATORPRINT:
     ; operator print
+    LEA DX, MSGBR1
+    MOV AH, 9
+    INT 21H
     MOV DL,OPERATOR
     MOV AH,2
     INT 21H
+    LEA DX, MSGBR2
+    MOV AH, 9
+    INT 21H
+PRINT2:
+    LEA DX, MSGBR1
+    MOV AH, 9
+    INT 21H
+    CMP SIGN2,1
+    JNE OUTPUTNUMBER2 
+    LEA DX, MINUS
+    MOV AH, 9
+    INT 21H
 OUTPUTNUMBER2:
-    MOV OPERAND2,BX
     MOV AX,OPERAND2
     MOV CX,10000
     XOR DX,DX
@@ -212,6 +244,9 @@ OUTPUTNUMBER2:
     ADD CX,48
     MOV DL,CL
     MOV AH, 2
+    INT 21H
+    LEA DX, MSGBR2
+    MOV AH, 9
     INT 21H 
 ;DOX exit
 EXIT:
