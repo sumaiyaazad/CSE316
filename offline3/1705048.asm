@@ -8,9 +8,10 @@
     OPERAND1 DW 0
     OPERAND2 DW 0
     OPERATOR DB 0
-    SIGN1 DW 0 
-    SIGN2 DW 0
-    SIGN DW 0
+    SIGN1 DB 0 
+    SIGN2 DB 0 
+    RESULT DW 0
+    RESULTSIGN DB 0
     
     MSGERROR DB CR,LF,' Wrong operator $'
     MSG1 DB CR,LF,' Enter operand1: $'
@@ -20,7 +21,8 @@
     MSGBR1 DB '[$'
     MSGBR2 DB ']$' 
     MSG DB CR,LF,' $'
-    MINUS DB '-$'
+    MINUS DW '-$'
+    EQUAL DW '=$'
 
 .CODE
 
@@ -248,6 +250,88 @@ OUTPUTNUMBER2:
     LEA DX, MSGBR2
     MOV AH, 9
     INT 21H 
+    ;print equal sign
+    LEA DX, EQUAL
+    MOV AH, 9
+    INT 21H
+OPERATORCHECK:
+    CMP OPERATOR,42
+    JE MULTIPLICATION
+    CMP OPERATOR,43
+    JE ADDITION
+    CMP OPERATOR,45
+    JE SUBTRACTION 
+DIVISION:
+    JMP EXIT
+SUBTRACTION:
+    JMP EXIT
+ADDITION:
+    JMP EXIT
+MULTIPLICATION:
+    MOV AL,SIGN2
+    MOV RESULTSIGN,AL
+    MOV AL,SIGN1
+    XOR RESULTSIGN,AL
+    ADD RESULTSIGN,48 
+    MOV AX,OPERAND1
+    MUL OPERAND2
+    MOV RESULT,AX
+PRINTSIGN: 
+    LEA DX, MSGBR1
+    MOV AH, 9
+    INT 21H
+    SUB RESULTSIGN,48
+    CMP RESULTSIGN,1
+    JNE PRINTRESULT
+    LEA DX, MINUS
+    MOV AH, 9
+    INT 21H
+PRINTRESULT:
+    MOV AX,RESULT
+    MOV CX,10000
+    XOR DX,DX
+    DIV CX
+    ADD AX,48 
+    MOV AH, 2
+    ;move remaider to cx before changing dl
+    MOV CX,DX
+    MOV DL,AL 
+    INT 21H
+    ;move remainder to ax
+    MOV AX,CX
+    MOV CX,1000
+    XOR DX,DX
+    DIV CX
+    ADD AX,48
+    MOV AH, 2
+    MOV CX,DX
+    MOV DL,AL 
+    INT 21H   
+    MOV AX,CX
+    MOV CX,100
+    XOR DX,DX
+    DIV CX
+    ADD AX,48
+    MOV AH, 2
+    MOV CX,DX
+    MOV DL,AL 
+    INT 21H
+    MOV AX,CX
+    MOV CX,10 
+    XOR DX,DX
+    DIV CX
+    ADD AX,48
+    MOV AH, 2
+    MOV CX,DX
+    MOV DL,AL 
+    INT 21H
+    ADD CX,48
+    MOV DL,CL
+    MOV AH, 2
+    INT 21H 
+    LEA DX, MSGBR2
+    MOV AH, 9
+    INT 21H
 ;DOX exit
 EXIT:
     MOV AH, 4CH
