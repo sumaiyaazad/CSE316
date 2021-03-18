@@ -298,7 +298,7 @@ SUBTRACTION2:
     MOV BX,OPERAND2
     SUB RESULT,BX
     JMP PRINTSIGN
-;both operand sign 0 but operand2>operand1 so result sign 1
+;both operand sign 0 but operand2 > operand1 so result sign 1
 RESULTSIGN3:
     MOV RESULTSIGN,1
     MOV BX,OPERAND2
