@@ -6,7 +6,7 @@
     cr equ 0DH
     lf equ 0AH
     space equ 020h
-    arr db 2 dup(0)
+    storebx dw 0
     result dw 100 dup<0>
     
     msginput db cr,lf,' Input(n): $'
@@ -43,7 +43,7 @@ main proc
     mul cl
     add bx,ax
     ;store input number in cx 
-    mov cl,bl
+    mov cx,bx
     lea dx, msgconfirm
     mov ah,9
     int 21h
@@ -69,25 +69,24 @@ main proc
     mov ah,9
     int 21h
     ;//changed dh to dx and bh to bx 
-    mov dh,0
-    mov bh,1
+    mov dx,0
+    mov bx,1
     lea si,result
     ;//changed dh to dx
-    mov [si],dh
-    cmp cl,2
+    mov [si],dx
+    cmp cx,2
     jl print
-    mov al,cl
-    sub al,1
+    mov ax,cx
+    sub ax,1
     call fibonacci 
 print:
     lea si,result
     ;//changed dl to dx
-    mov dl,[si]
-    add dl,48
+    mov dx,[si]
+    add dx,48
     mov ah,2
     int 21h
-    mov ch,0
-    dec cl
+    dec cx
     loop1:
         mov dl,44
         mov ah,2
@@ -132,13 +131,13 @@ exit:
 fibonacci proc
     inc si 
     ;//changed all h to x
-    mov [si],bh 
-    mov ah,bh
-    add bh,dh
-    mov dh,ah
-    dec al
-    cmp al,0
-    je print
+    mov [si],bx
+    dec ax
+    cmp ax,0
+    je print 
+    mov storebx,bx
+    add bx,dx
+    mov dx,storebx
     call fibonacci
     ret 2
 end main
