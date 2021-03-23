@@ -9,7 +9,7 @@
     storebx dw 0
     storedx dw 0
     
-    msginput db cr,lf,' Input(n): $'
+    msginput db cr,lf,' Input(n(1-25)): $'
     msgconfirm db cr,lf,' Your Input: $'
     msg1 db cr,lf,' Array1 values: $'
     msg2 db cr,lf,' Array2 values: $'
@@ -89,45 +89,60 @@ fibonacci proc
         mov ah,2
         int 21h
         mov ax,bx
+        
+        xor dx,dx
+        mov bx,10000
+        div bx
+        ;save the remainder in bl
+        mov bx,dx
+        ;compare quotient with 0
+        ;cmp ax,0
+        add al,48 
+        mov ah, 2
+        mov dl,al 
+        int 21h
+        ;remainderop0:
+        mov ah,0 
+        mov ax,bx
         xor dx,dx
         mov bx,1000
         div bx
         ;save the remainder in bl
         mov bx,dx
         ;compare quotient with 0
-        cmp ax,0
-        je remainderop1
+        ;cmp ax,0
+        ;je remainderop1
         add al,48 
         mov ah, 2
         mov dl,al 
         int 21h
-        remainderop1:
+        ;remainderop1:
         mov ah,0 
         mov ax,bx
         mov dl,100
         div dl
         mov bl,ah
         ;compare quotient with 0
-        cmp al,0
-        je remainderprint2
+        ;cmp al,0
+        ;je remainderprint2
         add al,48 
         mov ah, 2
         mov dl,al 
         int 21h
-        remainderprint2:
+        ;remainderprint2:
         mov ah,0 
         mov al,bl
         mov dl,10
         div dl
         mov bl,ah
         ;compare quotient with 0
-        cmp al,0
-        je remainderprint3
+        ;cmp al,0
+        ;je remainderprint3
         add al,48 
         mov ah, 2
         mov dl,al 
         int 21h
-        remainderprint3:
+        ;remainderprint3:
         add bl,48
         mov ah, 2
         mov dl,bl 
