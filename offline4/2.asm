@@ -7,7 +7,7 @@
     lf equ 0AH
     space equ 020h
     storebx dw 0
-    result dw 100 dup<0>
+    storedx dw 0
     
     msginput db cr,lf,' Input(n): $'
     msgconfirm db cr,lf,' Your Input: $'
@@ -69,46 +69,42 @@ main proc
     mov ah,9
     int 21h
     ;//changed dh to dx and bh to bx 
+    mov dl,48
+    mov ah, 2
+    int 21h
+    cmp cx,2
+    jl exit
+    dec cx
     mov dx,0
     mov bx,1
-    lea si,result
-    ;//changed dh to dx
-    mov [si],dx
-    cmp cx,2
-    jl print
-    mov ax,cx
-    sub ax,1
     call fibonacci 
-print:
-    lea si,result
-    ;//changed dl to dx
-    mov dx,[si]
-    add dx,48
-    mov ah,2
+exit: 
+    mov ah,4ch
     int 21h
-    dec cx
-    loop1:
+    main endp
+fibonacci proc
+        mov storebx,bx
+        mov storedx,dx 
         mov dl,44
         mov ah,2
         int 21h
-        inc si
-        mov ax,[si]
-        mov dl,100
-        xor ah,ah
-        div dl
-        mov bl,ah
+        mov ax,bx
+        xor dx,dx
+        mov bx,1000
+        div bx
+        ;save the remainder in bl
+        mov bx,dx
         ;compare quotient with 0
-        cmp al,0
-        je remainderprint1
+        cmp ax,0
+        je remainderop1
         add al,48 
         mov ah, 2
         mov dl,al 
         int 21h
-        remainderprint1:
+        remainderop1:
         mov ah,0 
-        mov al,bl
-        mov dl,10
-        xor ah,ah
+        mov ax,bx
+        mov dl,100
         div dl
         mov bl,ah
         ;compare quotient with 0
@@ -119,25 +115,30 @@ print:
         mov dl,al 
         int 21h
         remainderprint2:
+        mov ah,0 
+        mov al,bl
+        mov dl,10
+        div dl
+        mov bl,ah
+        ;compare quotient with 0
+        cmp al,0
+        je remainderprint3
+        add al,48 
+        mov ah, 2
+        mov dl,al 
+        int 21h
+        remainderprint3:
         add bl,48
         mov ah, 2
         mov dl,bl 
-        int 21h
-        loop loop1
-exit: 
-    mov ah,4ch
-    int 21h
-    main endp
-fibonacci proc
-    inc si 
-    ;//changed all h to x
-    mov [si],bx
-    dec ax
-    cmp ax,0
-    je print 
-    mov storebx,bx
-    add bx,dx
-    mov dx,storebx
-    call fibonacci
+        int 21h 
+        dec cx
+        cmp cx,0
+        je exit 
+        mov bx,storebx
+        mov dx,storedx
+        add bx,dx
+        mov dx,storebx
+        call fibonacci
     ret 2
 end main
